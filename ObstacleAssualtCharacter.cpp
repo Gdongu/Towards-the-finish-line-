@@ -70,7 +70,7 @@ void AObstacleAssualtCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 	{
 		if (SlowMoAction)
 		{
-			// ¹öÆ° ´©¸¦ ¶§ ¡æ Started, ¶¿ ¶§ ¡æ Completed
+			// ë²„íŠ¼ ëˆ„ë¥¼ ë•Œ â†’ Started, ë—„ ë•Œ â†’ Completed
 			EIC->BindAction(SlowMoAction, ETriggerEvent::Started, this, &AObstacleAssualtCharacter::StartSlowMo);
 			EIC->BindAction(SlowMoAction, ETriggerEvent::Completed, this, &AObstacleAssualtCharacter::StopSlowMo);
 		}
@@ -99,7 +99,7 @@ void AObstacleAssualtCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ·ÎÄÃ ÇÃ·¹ÀÌ¾î¿¡ IMC Àû¿ë
+	// ë¡œì»¬ í”Œë ˆì´ì–´ì— IMC ì ìš©
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		if (ULocalPlayer* LP = PC->GetLocalPlayer())
@@ -108,7 +108,6 @@ void AObstacleAssualtCharacter::BeginPlay()
 			{
 				if (PlayerIMC)
 				{
-					// ¿ì¼±¼øÀ§ 0 ÀÌ»óÀÌ¸é OK. ÇÊ¿ä ½Ã ´õ ³ôÀº °ª »ç¿ë.
 					Subsys->AddMappingContext(PlayerIMC, /*Priority=*/0);
 				}
 			}
@@ -117,14 +116,13 @@ void AObstacleAssualtCharacter::BeginPlay()
 
 	if (BGM)
 	{
-		// SpawnSound2D´Â ¿ùµå ¾îµğ¼­³ª µé¸®´Â 2D À½¾ÇÀ» »ı¼º + Àç»ı
-		// ¹İÈ¯µÈ AudioComponent¸¦ Àâ¾Æ¼­ ÇÇÄ¡/º¼·ı Á¦¾î¿¡ »ç¿ë
+		// SpawnSound2DëŠ” ì›”ë“œ ì–´ë””ì„œë‚˜ ë“¤ë¦¬ëŠ” 2D ìŒì•…ì„ ìƒì„± + ì¬ìƒ
+		// ë°˜í™˜ëœ AudioComponentë¥¼ ì¡ì•„ì„œ í”¼ì¹˜/ë³¼ë¥¨ ì œì–´ì— ì‚¬ìš©
 		BGMComponent = UGameplayStatics::SpawnSound2D(this, BGM, /*VolumeMultiplier=*/1.0f, /*PitchMultiplier=*/NormalPitch, /*StartTime=*/0.0f, /*ConcurrencySettings=*/nullptr, /*bAutoDestroy=*/false);
 		if (BGMComponent)
 		{
-			BGMComponent->bIsUISound = false; // ±»ÀÌ UI»ç¿îµå·Î Ãë±ŞÇÏÁö ¾ÊÀ½(¹Í½Ì ºĞ¸® ½Ã ¹Ù²ãµµ µÊ)
+			BGMComponent->bIsUISound = false;
 			BGMComponent->SetUISound(false);
-			// ·çÇÁ´Â »ç¿îµå ¿¡¼Â ÂÊ(Å¥/¿şÀÌºê)¿¡¼­ ¼³Á¤ÇÏ´Â °ÍÀ» ±ÇÀå
 			if (!BGMComponent->IsPlaying())
 			{
 				BGMComponent->Play();
@@ -134,12 +132,12 @@ void AObstacleAssualtCharacter::BeginPlay()
 
 	if (!FollowCamera)
 	{
-		// Ä³¸¯ÅÍ¿¡ ´Ş¸° ¸ğµç UCameraComponent Áß Ã¹ ¹øÂ° »ç¿ë
+		// ìºë¦­í„°ì— ë‹¬ë¦° ëª¨ë“  UCameraComponent ì¤‘ ì²« ë²ˆì§¸ ì‚¬ìš©
 		TArray<UCameraComponent*> Cams;
 		GetComponents<UCameraComponent>(Cams);
 		if (Cams.Num() > 0)
 		{
-			// ÀÌ¸§ÀÌ "FollowCamera"ÀÎ °É ¿ì¼± ¼±ÅÃ
+			// ì´ë¦„ì´ "FollowCamera"ì¸ ê±¸ ìš°ì„  ì„ íƒ
 			for (UCameraComponent* Cam : Cams)
 			{
 				if (Cam && Cam->GetName().Contains(TEXT("FollowCamera")))
@@ -152,20 +150,19 @@ void AObstacleAssualtCharacter::BeginPlay()
 		}
 	}
 
-	// ¡Ú Æ÷½ºÆ®ÇÁ·Î¼¼½º MID ¸¸µé¾î FollowCamera¿¡ ºÙÀÌ±â
+	// í¬ìŠ¤íŠ¸í”„ë¡œì„¸ìŠ¤ MID ë§Œë“¤ì–´ FollowCameraì— ë¶™ì´ê¸°
 	if (FollowCamera && DesaturatePPMaterial)
 	{
 		DesaturatePPMID = UMaterialInstanceDynamic::Create(DesaturatePPMaterial, this);
-		// BlendWeight´Â 1·Î °íÁ¤, ¼¼±â´Â ¸ÓÆ¼¸®¾ó ÆÄ¶ó¹ÌÅÍ(DesatAmount)·Î Á¶Àı
 		FollowCamera->PostProcessSettings.AddBlendable(DesaturatePPMID, 1.0f);
-		DesaturatePPMID->SetScalarParameterValue(TEXT("DesatAmount"), 0.0f); // Æò»ó½Ã ÄÃ·¯
+		DesaturatePPMID->SetScalarParameterValue(TEXT("DesatAmount"), 0.0f); // í‰ìƒì‹œ ì»¬ëŸ¬
 	}
 
-	// ½ÃÀÛ ½Ã°¢ ÀúÀå
+	// ì‹œì‘ ì‹œê° ì €ì¥
 	StartGameSeconds = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
 	StartRealSeconds = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 
-	// À§Á¬ »ı¼º & È­¸é Ãß°¡
+	// ìœ„ì ¯ ìƒì„± & í™”ë©´ ì¶”ê°€
 	if (IsLocallyControlled() && PlaytimeWidgetClass)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetController()))
@@ -186,7 +183,6 @@ void AObstacleAssualtCharacter::BeginPlay()
 
 	if (UCapsuleComponent* Cap = GetCapsuleComponent())
 	{
-		// Hit ÀÌº¥Æ®°¡ ³ª¿À·Á¸é 'Simulation Generates Hit Events'°¡ ÄÑÁ®¾ß ÇÔ
 		Cap->SetNotifyRigidBodyCollision(true);
 		Cap->OnComponentHit.AddDynamic(this, &AObstacleAssualtCharacter::OnCapsuleHit);
 	}
@@ -256,7 +252,7 @@ void AObstacleAssualtCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	// DesatAmount¸¦ ºÎµå·´°Ô º¸°£ (0 ¡ê 1)
+	// DesatAmountë¥¼ ë¶€ë“œëŸ½ê²Œ ë³´ê°„ (0 â†” 1)
 	if (DesaturatePPMID)
 	{
 		float Current = 0.f;
@@ -275,13 +271,13 @@ void AObstacleAssualtCharacter::Tick(float DeltaSeconds)
 
 	if (bUseGameTime)
 	{
-		// ½½·Î¿ì(Àü¿ª Time Dilation)³ª ÀÏ½ÃÁ¤ÁöÀÇ ¿µÇâÀ» ¹Ş´Â 'ÀÎ°ÔÀÓ' °æ°ú½Ã°£
+		// ìŠ¬ë¡œìš°(ì „ì—­ Time Dilation)ë‚˜ ì¼ì‹œì •ì§€ì˜ ì˜í–¥ì„ ë°›ëŠ” 'ì¸ê²Œì„' ê²½ê³¼ì‹œê°„
 		Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
 		Elapsed = Now - StartGameSeconds;
 	}
 	else
 	{
-		// ½ÇÁ¦ °æ°ú½Ã°£(½½·Î¿ì ¹«½Ã, ÀÏ½ÃÁ¤Áö Áß¿¡µµ Áõ°¡)
+		// ì‹¤ì œ ê²½ê³¼ì‹œê°„(ìŠ¬ë¡œìš° ë¬´ì‹œ, ì¼ì‹œì •ì§€ ì¤‘ì—ë„ ì¦ê°€)
 		Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 		Elapsed = Now - StartRealSeconds;
 	}
@@ -297,7 +293,7 @@ void AObstacleAssualtCharacter::StartSlowMo()
 	if (bIsSlowMo) return;
 	bIsSlowMo = true;
 
-	// Àü¿ª Å¸ÀÓ µô·¹ÀÌ¼ÇÀº ¼­¹ö ±ÇÇÑ¿¡¼­ Àû¿ë
+	// ì „ì—­ íƒ€ì„ ë”œë ˆì´ì…˜ì€ ì„œë²„ ê¶Œí•œì—ì„œ ì ìš©
 	ServerSetSlowMo(/*bEnable=*/true, GlobalTimeDilation);
 
 	TargetDesat = 0.4f;
@@ -306,9 +302,6 @@ void AObstacleAssualtCharacter::StartSlowMo()
 	{
 		BGMComponent->SetPitchMultiplier(FMath::Max(0.01f, GlobalTimeDilation));
 	}
-
-	// ÇÃ·¹ÀÌ¾îµµ °°ÀÌ ´À·ÁÁö°Ô ÇÏ¹Ç·Î º¸Á¤ ¾øÀ½
-	// È¤½Ã ¿¹Àü¿¡ º¸Á¤ ½è´Ù¸é ¾ÈÀüÇÏ°Ô ¿øº¹
 	CustomTimeDilation = 1.f;
 	if (AController* C = GetController())
 		if (AActor* AsActor = Cast<AActor>(C))
@@ -324,7 +317,7 @@ void AObstacleAssualtCharacter::StopSlowMo()
 
 	TargetDesat = 0.0f;
 
-	// À½¾Ç ÇÇÄ¡ º¹±¸
+	// ìŒì•… í”¼ì¹˜ ë³µêµ¬
 	if (BGMComponent)
 	{
 		BGMComponent->SetPitchMultiplier(NormalPitch);
@@ -343,12 +336,12 @@ void AObstacleAssualtCharacter::ServerSetSlowMo_Implementation(bool bEnable, flo
 
 	if (bEnable)
 	{
-		// ÀüÃ¼(ÇÃ·¹ÀÌ¾î Æ÷ÇÔ) ´À·ÁÁü
+		// ì „ì²´(í”Œë ˆì´ì–´ í¬í•¨) ëŠë ¤ì§
 		UGameplayStatics::SetGlobalTimeDilation(World, FMath::Clamp(NewGlobalDilation, 0.01f, 1.f));
 	}
 	else
 	{
-		// º¹±¸
+		// ë³µêµ¬
 		UGameplayStatics::SetGlobalTimeDilation(World, 1.f);
 	}
 }
@@ -364,7 +357,6 @@ void AObstacleAssualtCharacter::OnCapsuleHit(
 	if (!bAutoClimbEnabled || bIsHanging || bClimbInProgress) return;
 	if (!OtherActor || OtherActor == this) return;
 
-	// ·ÎÄÃ Æù¿¡¼­¸¸ Ã³¸®(¸ÖÆ¼ÇÃ·¹ÀÌ ÃÖÀûÈ­)
 	if (!IsLocallyControlled()) return;
 	UWorld* World = GetWorld();
 	if (!World) return;
@@ -372,28 +364,28 @@ void AObstacleAssualtCharacter::OnCapsuleHit(
 	const float Now = World->GetTimeSeconds();
 	if (Now - LastAutoClimbTime < AutoClimbCooldown) return;
 
-	// °øÁß¿¡¼­¸¸ ÀÚµ¿ ¹ßµ¿
+	// ê³µì¤‘ì—ì„œë§Œ ìë™ ë°œë™
 	const UCharacterMovementComponent* Move = GetCharacterMovement();
 	if (bRequireAirborne && Move && !Move->IsFalling()) return;
 
-	// ÅÂ±× ÇÊÅÍ(¼±ÅÃ)
+	// íƒœê·¸ í•„í„°(ì„ íƒ)
 	if (bUseActorTagFilter && !OtherActor->ActorHasTag(ClimbableTag)) return;
 
-	// ¡®º®¡¯ ¼º°İ ÆÇÁ¤: ¹ı¼±ÀÌ ¼öÁ÷¿¡ °¡±õ°í(Z ÀÛ¾Æ¾ß), Á¤¸é Á¢±ÙÀÌ¾î¾ß
+	// â€˜ë²½â€™ ì„±ê²© íŒì •: ë²•ì„ ì´ ìˆ˜ì§ì— ê°€ê¹ê³ (Z ì‘ì•„ì•¼), ì •ë©´ ì ‘ê·¼ì´ì–´ì•¼
 	const FVector WallNormal = Hit.ImpactNormal.GetSafeNormal();
-	if (WallNormal.Z > 0.3f) return; // °æ»ç/¹Ù´ÚÀº Á¦¿Ü
+	if (WallNormal.Z > 0.3f) return; // ê²½ì‚¬/ë°”ë‹¥ì€ ì œì™¸
 
 	const float Approach = FVector::DotProduct(GetActorForwardVector(), -WallNormal);
 	if (Approach < MinApproachDot) return;
 
-	// ³Ê¹« »ìÂ¦ ´êÀº °æ¿ì ¹«½Ã
+	// ë„ˆë¬´ ì‚´ì§ ë‹¿ì€ ê²½ìš° ë¬´ì‹œ
 	if (Move && Move->Velocity.SizeSquared() < (MinImpactSpeed * MinImpactSpeed)) return;
 
-	// ½ÇÁ¦ ¿Ã¶ó¼³ ¼ö ÀÖ´Â ¿§ÁöÀÎÁö Á¤¹Ğ Å½Áö
+	// ì‹¤ì œ ì˜¬ë¼ì„¤ ìˆ˜ ìˆëŠ” ì—£ì§€ì¸ì§€ ì •ë°€ íƒì§€
 	FLedgeInfo Info;
 	if (!FindLedge(Info)) return;
 
-	// ¿Â¸®¾÷ ´À³¦: ´êÀÚ¸¶ÀÚ µî¹İ
+	// ì˜¨ë¦¬ì—… ëŠë‚Œ: ë‹¿ìë§ˆì ë“±ë°˜
 	EnterHang(Info);
 	LastAutoClimbTime = Now;
 	//ClimbUpFromLedge();
@@ -414,7 +406,7 @@ bool AObstacleAssualtCharacter::FindLedge(FLedgeInfo& OutInfo) const
 	const FRotator YawRot(0.f, GetActorRotation().Yaw, 0.f);
 	const FVector Forward = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
 
-	// 1) °¡½¿ ³ôÀÌ¿¡¼­ Àü¹æ ¶óÀÎÆ®·¹ÀÌ½º -> º® ¸Â±â
+	// 1) ê°€ìŠ´ ë†’ì´ì—ì„œ ì „ë°© ë¼ì¸íŠ¸ë ˆì´ìŠ¤ -> ë²½ ë§ê¸°
 	const FVector Chest = Loc + FVector(0, 0, HalfHeight * 0.5f);
 	const FVector Start = Chest;
 	const FVector End = Chest + Forward * (ForwardCheckDistance + Radius);
@@ -424,10 +416,10 @@ bool AObstacleAssualtCharacter::FindLedge(FLedgeInfo& OutInfo) const
 	const bool bHitWall = GetWorld()->LineTraceSingleByChannel(WallHit, Start, End, ECC_Visibility, Params);
 	if (!bHitWall) return false;
 
-	// º® ¼º°İ: °ÅÀÇ ¼öÁ÷(¹ı¼± Z°¡ ÀÛ¾Æ¾ß)
+	// ë²½ ì„±ê²©: ê±°ì˜ ìˆ˜ì§(ë²•ì„  Zê°€ ì‘ì•„ì•¼)
 	if (WallHit.ImpactNormal.Z > 0.3f) return false;
 
-	// 2) º® À§·Î ¿Ã¶ó°¡¼­ ¾Æ·¡·Î Ä³½ºÆ® -> »ó¸é Ã£±â
+	// 2) ë²½ ìœ„ë¡œ ì˜¬ë¼ê°€ì„œ ì•„ë˜ë¡œ ìºìŠ¤íŠ¸ -> ìƒë©´ ì°¾ê¸°
 	const FVector Up = FVector::UpVector;
 	const FVector OverTopStart = WallHit.ImpactPoint + Up * UpCheckHeight - WallHit.ImpactNormal * 10.f;
 	const FVector OverTopEnd = OverTopStart - Up * DownCheckDepth;
@@ -436,7 +428,7 @@ bool AObstacleAssualtCharacter::FindLedge(FLedgeInfo& OutInfo) const
 	const bool bHitTop = GetWorld()->LineTraceSingleByChannel(TopHit, OverTopStart, OverTopEnd, ECC_Visibility, Params);
 	if (!bHitTop) return false;
 
-	// ³ôÀÌ ¹üÀ§ Ã¼Å©
+	// ë†’ì´ ë²”ìœ„ ì²´í¬
 	const float EdgeHeight = TopHit.ImpactPoint.Z;
 	const float CharFeetZ = Loc.Z - HalfHeight;
 	const float HeightDelta = EdgeHeight - CharFeetZ;
@@ -455,20 +447,20 @@ void AObstacleAssualtCharacter::EnterHang(const FLedgeInfo& Info)
 	bIsHanging = true;
 	CurrentLedge = Info;
 
-	// ÀÌµ¿/Áß·Â Àá±İ
+	// ì´ë™/ì¤‘ë ¥ ì ê¸ˆ
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())
 	{
 		Move->StopMovementImmediately();
 		Move->DisableMovement();
 		Move->GravityScale = 0.f;
-		Move->SetMovementMode(MOVE_Flying); // ¿Ü·Â Á¦°Å
+		Move->SetMovementMode(MOVE_Flying); // ì™¸ë ¥ ì œê±°
 	}
 
-	// ·¹Áö Á¤·Ä & ½º³À
+	// ë ˆì§€ ì •ë ¬ & ìŠ¤ëƒ…
 	const UCapsuleComponent* Cap = GetCapsuleComponent();
 	const float HalfHeight = Cap ? Cap->GetScaledCapsuleHalfHeight() : 88.f;
 
-	const FVector OutFromWall = -Info.WallNormal; // º®À» ¹Ù¶óº¸µµ·Ï
+	const FVector OutFromWall = -Info.WallNormal; // ë²½ì„ ë°”ë¼ë³´ë„ë¡
 	const FVector HangBase =
 		FVector(Info.LedgeTopPoint.X, Info.LedgeTopPoint.Y, Info.LedgeTopPoint.Z) +
 		OutFromWall * HangOffsetFromEdge +
@@ -483,15 +475,14 @@ void AObstacleAssualtCharacter::ClimbUpFromLedge()
 {
 	if (!bIsHanging) return;
 
-	// °£´Ü ¹öÀü: ¹Ù·Î À§·Î ½º³À (¿¬ÃâÀº ³ªÁß¿¡ ¸ùÅ¸ÁÖ/³ëÆ¼ÆÄÀÌ·Î)
-	const float StepForward = 30.f; // º® ³Ñ¾î Á¶±İ ÀüÁø
+	const float StepForward = 30.f; // ë²½ ë„˜ì–´ ì¡°ê¸ˆ ì „ì§„
 	const FVector Forward = (-CurrentLedge.WallNormal);
 
 	FVector Target = CurrentLedge.LedgeTopPoint + Forward * StepForward;
 
 	if (const UCapsuleComponent* Cap = GetCapsuleComponent())
 	{
-		Target.Z += Cap->GetScaledCapsuleHalfHeight() + 2.f; // ¹ßÀÌ »ó¸é À§·Î
+		Target.Z += Cap->GetScaledCapsuleHalfHeight() + 2.f; // ë°œì´ ìƒë©´ ìœ„ë¡œ
 	}
 
 	SetActorLocation(Target, false, nullptr, ETeleportType::TeleportPhysics);
@@ -513,20 +504,14 @@ void AObstacleAssualtCharacter::DropFromLedge()
 
 void AObstacleAssualtCharacter::StartClimbUpSequence()
 {
-	bClimbInProgress = true; // ½ÃÄö½º ½ÃÀÛ
+	bClimbInProgress = true; // ì‹œí€€ìŠ¤ ì‹œì‘
 
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())
 	{
 		Move->StopMovementImmediately();
-		Move->SetMovementMode(MOVE_Flying);              // ¿Ü·Â Á¦°Å
+		Move->SetMovementMode(MOVE_Flying);              // ì™¸ë ¥ ì œê±°
 		Move->bUseControllerDesiredRotation = false;
 		Move->bOrientRotationToMovement = false;
-
-		if (bClimbUsesRootMotion)
-		{
-			// ¡Ú enumÀº ::Type »ç¿ë + Çì´õ Æ÷ÇÔ ÇÊ¿ä: "Animation/AnimTypes.h"
-			//Move->SetRootMotionMode(ERootMotionMode::Type::RootMotionFromMontagesOnly);
-		}
 	}
 
 	if (UAnimInstance* Anim = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
@@ -535,24 +520,24 @@ void AObstacleAssualtCharacter::StartClimbUpSequence()
 		{
 			Anim->Montage_Play(ClimbUpMontage, 1.f);
 
-			// ³¡³ª¸é ¸¶¹«¸®
+			// ëë‚˜ë©´ ë§ˆë¬´ë¦¬
 			FOnMontageEnded OnEnd;
 			OnEnd.BindLambda([this](UAnimMontage*, bool) { FinishClimbUpSequence(); });
 			Anim->Montage_SetEndDelegate(OnEnd, ClimbUpMontage);
 		}
 		else
 		{
-			// ¸ùÅ¸ÁÖ°¡ ºñ¾îÀÖÀ¸¸é Áï½Ã Ä¿¹Ô+Á¾·á
+			// ëª½íƒ€ì£¼ê°€ ë¹„ì–´ìˆìœ¼ë©´ ì¦‰ì‹œ ì»¤ë°‹+ì¢…ë£Œ
 			ClimbUpCommit();
 			FinishClimbUpSequence();
 		}
 	}
 }
 
-// AnimNotify(ClimbCommit)¿¡¼­ ºÎ¸£´Â ÇÔ¼ö
+// AnimNotify(ClimbCommit)ì—ì„œ ë¶€ë¥´ëŠ” í•¨ìˆ˜
 void AObstacleAssualtCharacter::ClimbUpCommit()
 {
-	if (bClimbUsesRootMotion) return; // ·çÆ®¸ğ¼ÇÀÌ¸é ÀÌµ¿ ¾È ÇÔ
+	if (bClimbUsesRootMotion) return; // ë£¨íŠ¸ëª¨ì…˜ì´ë©´ ì´ë™ ì•ˆ í•¨
 
 	const float StepForward = 30.f;
 	const FVector Forward = (-CurrentLedge.WallNormal);
@@ -565,7 +550,7 @@ void AObstacleAssualtCharacter::ClimbUpCommit()
 
 	SetActorLocation(Target, false, nullptr, ETeleportType::TeleportPhysics);
 
-	// ½Ã¼± Á¤·Ä(¼±ÅÃ)
+	// ì‹œì„  ì •ë ¬
 	const FRotator Face = FRotationMatrix::MakeFromXZ(Forward, FVector::UpVector).Rotator();
 	SetActorRotation(FRotator(0.f, Face.Yaw, 0.f));
 
@@ -576,14 +561,14 @@ void AObstacleAssualtCharacter::FinishClimbUpSequence()
 {
 	if (UCharacterMovementComponent* Move = GetCharacterMovement())
 	{
-		// ·çÆ®¸ğ¼Ç ¸ğµå ¿øº¹
+		// ë£¨íŠ¸ëª¨ì…˜ ëª¨ë“œ ì›ë³µ
 		//Move->SetRootMotionMode(ERootMotionMode::Type::NoRootMotionExtraction);
 
 		Move->GravityScale = 1.f;
 		Move->SetMovementMode(MOVE_Walking);
 		Move->SetDefaultMovementMode();
-		Move->bUseControllerDesiredRotation = true;    // ÇÁ·ÎÁ§Æ® ½ºÅ¸ÀÏ¿¡ ¸Â°Ô
-		Move->bOrientRotationToMovement = true;     // ÇÊ¿äÇÏ¸é false
+		Move->bUseControllerDesiredRotation = true;   
+		Move->bOrientRotationToMovement = true;    
 	}
 	SnapCapsuleToFloor(150.f, 12.f);
 
@@ -599,7 +584,7 @@ void AObstacleAssualtCharacter::SnapCapsuleToFloor(float DownTrace, float UpTole
 	const float HalfHeight = Cap->GetScaledCapsuleHalfHeight();
 	const float Radius = Cap->GetScaledCapsuleRadius();
 
-	// Ä¸½¶ Áß½É¿¡¼­ ¾à°£ À§·Î ¿Ã¸° ÁöÁ¡¿¡¼­ ¾Æ·¡·Î ½ºÀ¬
+	// ìº¡ìŠ ì¤‘ì‹¬ì—ì„œ ì•½ê°„ ìœ„ë¡œ ì˜¬ë¦° ì§€ì ì—ì„œ ì•„ë˜ë¡œ ìŠ¤ìœ•
 	const FVector Start = GetActorLocation() + FVector(0, 0, UpTolerance);
 	const FVector End = Start - FVector(0, 0, DownTrace);
 
@@ -609,19 +594,19 @@ void AObstacleAssualtCharacter::SnapCapsuleToFloor(float DownTrace, float UpTole
 		Hit,
 		Start, End,
 		FQuat::Identity,
-		ECollisionChannel::ECC_Visibility, // ÇÊ¿äÇÏ¸é Àü¿ë Ã¤³Î
+		ECollisionChannel::ECC_Visibility,
 		FCollisionShape::MakeCapsule(Radius, HalfHeight),
 		Params
 	);
 
 	if (bHit)
 	{
-		// ¿öÄ¿ºí ¹Ù´Ú¸¸ ÀÎÁ¤(³Ê¹« °¡ÆÄ¸£¸é ½ºÅµ)
+		// ì›Œì»¤ë¸” ë°”ë‹¥ë§Œ ì¸ì •(ë„ˆë¬´ ê°€íŒŒë¥´ë©´ ìŠ¤í‚µ)
 		const UCharacterMovementComponent* Move = GetCharacterMovement();
 		const float MaxWalkableCos = Move ? FMath::Cos(FMath::DegreesToRadians(Move->GetWalkableFloorAngle())) : FMath::Cos(FMath::DegreesToRadians(44.f));
 		if (FVector::DotProduct(Hit.ImpactNormal, FVector::UpVector) >= MaxWalkableCos)
 		{
-			// Ä¸½¶ ¹Ù´ÚÀÌ Áö¸é À§·Î ¿Àµµ·Ï Z Á¶Á¤
+			// ìº¡ìŠ ë°”ë‹¥ì´ ì§€ë©´ ìœ„ë¡œ ì˜¤ë„ë¡ Z ì¡°ì •
 			FVector NewLoc = GetActorLocation();
 			NewLoc.Z = Hit.ImpactPoint.Z + HalfHeight;
 			SetActorLocation(NewLoc, false, nullptr, ETeleportType::TeleportPhysics);
@@ -629,7 +614,7 @@ void AObstacleAssualtCharacter::SnapCapsuleToFloor(float DownTrace, float UpTole
 	}
 	else
 	{
-		// ¹Ù´ÚÀ» ¸ø Ã£¾ÒÀ¸¸é, ³Ê¹« ¶ßÁö ¾Êµµ·Ï »ìÂ¦¸¸ ³»·ÁÁÖ±â(¿É¼Ç)
 		AddActorWorldOffset(FVector(0, 0, -UpTolerance * 0.5f));
 	}
+
 }
