@@ -14,11 +14,11 @@ struct FLedgeInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY() FVector WallImpactPoint = FVector::ZeroVector;   // Àü¸é º® È÷Æ® ÁöÁ¡
-	UPROPERTY() FVector WallNormal = FVector::ForwardVector; // º®ÀÇ ¿ÜÇâ ¹ı¼±
-	UPROPERTY() FVector LedgeTopPoint = FVector::ZeroVector;   // ¿Ã¶ó¼³ »ó¸é ÁöÁ¡
-	UPROPERTY() float   LedgeHeightWorld = 0.f;                   // »ó¸é ¿ùµå Z(µğ¹ö±×)
-	UPROPERTY() AActor* HitActor = nullptr;               // ¸ÂÀº ¾×ÅÍ(¿É¼Ç)
+	UPROPERTY() FVector WallImpactPoint = FVector::ZeroVector;   // ì „ë©´ ë²½ íˆíŠ¸ ì§€ì 
+	UPROPERTY() FVector WallNormal = FVector::ForwardVector; // ë²½ì˜ ì™¸í–¥ ë²•ì„ 
+	UPROPERTY() FVector LedgeTopPoint = FVector::ZeroVector;   // ì˜¬ë¼ì„¤ ìƒë©´ ì§€ì 
+	UPROPERTY() float   LedgeHeightWorld = 0.f;                   // ìƒë©´ ì›”ë“œ Z
+	UPROPERTY() AActor* HitActor = nullptr;               // ë§ì€ ì•¡í„°
 
 	bool IsValid() const { return HitActor != nullptr; }
 };
@@ -57,21 +57,21 @@ class AObstacleAssualtCharacter : public ACharacter
 	
 protected:
 	bool bIsHanging = false;
-	FLedgeInfo CurrentLedge; // ¡ç Çì´õ¿¡ ¸â¹ö·Î »ç¿ë ok (Á¤ÀÇ°¡ À§¿¡ ÀÖÀ¸¹Ç·Î)
+	FLedgeInfo CurrentLedge;
 
-	// Å½Áö/Çàµ¿ ÇÔ¼öµé
-	bool FindLedge(FLedgeInfo& OutInfo) const;     // by-ref
-	void EnterHang(const FLedgeInfo& Info);         // by-const-ref or by-value ok
+	// íƒì§€, í–‰ë™ í•¨ìˆ˜ë“¤
+	bool FindLedge(FLedgeInfo& OutInfo) const;    
+	void EnterHang(const FLedgeInfo& Info);        
 	void ClimbUpFromLedge();
 	void DropFromLedge();
 
-	UFUNCTION() // ¡ç ¹İµå½Ã ÇÊ¿ä
+	UFUNCTION()
 		void OnCapsuleHit(
 			UPrimitiveComponent* HitComponent,
 			AActor* OtherActor,
 			UPrimitiveComponent* OtherComp,
 			FVector NormalImpulse,
-			const FHitResult& Hit   // ¡ç const FHitResult& ¿©¾ß ÇÔ
+			const FHitResult& Hit 
 		);
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -106,81 +106,81 @@ protected:
 	UFUNCTION()
 	void StopSlowMo();
 
-	/** ¼­¹ö¿¡¼­¸¸ Àü¿ª Å¸ÀÓ µô·¹ÀÌ¼Ç ¼³Á¤ */
+	/** ì„œë²„ì—ì„œë§Œ ì „ì—­ íƒ€ì„ ë”œë ˆì´ì…˜ ì„¤ì • */
 	UFUNCTION(Server, Reliable)
 	void ServerSetSlowMo(bool bEnable, float NewGlobalDilation);
 
-	/** Àü¿ª ½Ã°£ ¹èÀ² (ÇÃ·¹ÀÌ¾î Æ÷ÇÔ ÀüÃ¼ ´À·ÁÁü) */
+	/** ì „ì—­ ì‹œê°„ ë°°ìœ¨ (í”Œë ˆì´ì–´ í¬í•¨ ì „ì²´ ëŠë ¤ì§) */
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMo")
 	float GlobalTimeDilation = 0.25f;
 
-	/** Enhanced Input ¿¡¼Âµé (BP¿¡¼­ ¼¼ÆÃ ±ÇÀå) */
+	/** Enhanced Input ì—ì…‹ë“¤ */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> PlayerIMC;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> SlowMoAction;
 
-	/** (¼±ÅÃ) ½½·Î¿ì Áß Áßº¹ È£Ãâ ¹æÁö¿ë */
+	/** ìŠ¬ë¡œìš° ì¤‘ ì¤‘ë³µ í˜¸ì¶œ ë°©ì§€ìš© */
 	bool bIsSlowMo = false;
 
 	// BGM(2D)
 	UPROPERTY(EditAnywhere, Category = "Audio|BGM")
 	TObjectPtr<USoundBase> BGM;
 
-	/** 2D À½¾ÇÀ» °ü¸®ÇÒ ¿Àµğ¿À ÄÄÆ÷³ÍÆ® (BeginPlay¿¡¼­ Spawn) */
+	/** 2D ìŒì•…ì„ ê´€ë¦¬í•  ì˜¤ë””ì˜¤ ì»´í¬ë„ŒíŠ¸ */
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> BGMComponent;
 
-	/** Æò¼Ò ÇÇÄ¡ (º¸Åë 1.0) */
+	/** í‰ì†Œ í”¼ì¹˜ */
 	UPROPERTY(EditAnywhere, Category = "Audio|BGM")
 	float NormalPitch = 1.0f;
 
-	/** Post Process ¸ÓÆ¼¸®¾ó (M_Desaturate_PP) */
+	/** Post Process ë¨¸í‹°ë¦¬ì–¼ (M_Desaturate_PP) */
 	UPROPERTY(EditDefaultsOnly, Category = "PostProcess")
 	TObjectPtr<UMaterialInterface> DesaturatePPMaterial = nullptr;
 
-	/** µ¿Àû ÀÎ½ºÅÏ½º (DesatAmount ÆÄ¶ó¹ÌÅÍ Á¦¾î) */
+	/** ë™ì  ì¸ìŠ¤í„´ìŠ¤ (DesatAmount íŒŒë¼ë¯¸í„° ì œì–´) */
 	UPROPERTY(Transient)
 	TObjectPtr<UMaterialInstanceDynamic> DesaturatePPMID = nullptr;
 
-	/** ¸ñÇ¥ µğ»õÃò·¹ÀÌ¼Ç °ª(0~1), Æ½¿¡¼­ ºÎµå·´°Ô º¸°£ */
+	/** ëª©í‘œ ë””ìƒˆì¸„ë ˆì´ì…˜ ê°’(0~1), í‹±ì—ì„œ ë¶€ë“œëŸ½ê²Œ ë³´ê°„ */
 	float TargetDesat = 0.f;
 
-	/** º¸°£ ¼Óµµ (°ª/ÃÊ) */
+	/** ë³´ê°„ ì†ë„ (ê°’/ì´ˆ) */
 	UPROPERTY(EditDefaultsOnly, Category = "PostProcess")
-	float DesatInterpSpeed = 6.0f; // ºü¸£°Ô 0.15~0.25ÃÊ Á¤µµ
+	float DesatInterpSpeed = 6.0f;
 
-	/** À§Á¬ BP Å¬·¡½º (WBP_Playtime ÁöÁ¤) */
+	/** ìœ„ì ¯ BP í´ë˜ìŠ¤ (WBP_Playtime) */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UPlaytimeWidget> PlaytimeWidgetClass;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UPlaytimeWidget> PlaytimeWidget;
 
-	/** ½ÃÀÛ ±âÁØ ½Ã°£(°ÔÀÓ ½Ã°£/½Ç½Ã°£ Áß ¼±ÅÃ) */
+	/** ì‹œì‘ ê¸°ì¤€ ì‹œê°„ (ê²Œì„ ì‹œê°„/ì‹¤ì‹œê°„ ì¤‘ ì„ íƒ) */
 	float StartGameSeconds = 0.f;
 	float StartRealSeconds = 0.f;
 
-	/** true¸é ½½·Î¿ì/ÀÏ½ÃÁ¤Áö ¿µÇâÀ» ¹Ş´Â ¡®ÀÎ°ÔÀÓ ½Ã°£¡¯, false¸é ½Ç½Ã°£ */
+	/** trueë©´ ìŠ¬ë¡œìš°/ì¼ì‹œì •ì§€ ì˜í–¥ì„ ë°›ëŠ” â€˜ì¸ê²Œì„ ì‹œê°„â€™, falseë©´ ì‹¤ì‹œê°„ */
 	UPROPERTY(EditAnywhere, Category = "UI")
 	bool bUseGameTime = false;
 
-	// === ÀÚµ¿ ¿ÀÅäÅ¬¶óÀÓ ¼³Á¤ ===
+	// === ìë™ ì˜¤í† í´ë¼ì„ ì„¤ì • ===
 	UPROPERTY(EditAnywhere, Category = "Ledge|Auto")
 	bool bAutoClimbEnabled = true;
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Auto", meta = (ClampMin = "0.0"))
-	float AutoClimbCooldown = 0.6f;    // ¿¬¼Ó Æ®¸®°Å ¹æÁö
+	float AutoClimbCooldown = 0.6f;    // ì—°ì† íŠ¸ë¦¬ê±° ë°©ì§€
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Auto", meta = (ClampMin = "0.0"))
-	float MinImpactSpeed = 150.f;       // ³Ê¹« »ìÂ¦ ½ºÄ¡¸é ¹«½Ã
+	float MinImpactSpeed = 150.f;       // ë„ˆë¬´ ì‚´ì§ ìŠ¤ì¹˜ë©´ ë¬´ì‹œ
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Auto", meta = (ClampMin = "-1.0", ClampMax = "1.0"))
-	float MinApproachDot = 0.6f;        // Á¤¸é Ãæµ¹ Á¤µµ(Forward ¡¤ -WallNormal)
+	float MinApproachDot = 0.6f;        // ì •ë©´ ì¶©ëŒ ì •ë„ (Forward Â· -WallNormal)
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Auto")
-	bool bRequireAirborne = true;       // °øÁß(Á¡ÇÁ/³«ÇÏ)¿¡¼­¸¸ ÀÚµ¿ ¹ßµ¿ÇÒÁö
+	bool bRequireAirborne = true;       // ê³µì¤‘(ì í”„/ë‚™í•˜)ì—ì„œë§Œ ìë™ ë°œë™í• ì§€
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Auto")
 	bool bUseActorTagFilter = true;
@@ -195,39 +195,37 @@ protected:
 
 	// ====== Ledge Detect Params ======
 	UPROPERTY(EditAnywhere, Category = "Ledge|Trace")
-	float ForwardCheckDistance = 70.f;   // ¾Õº® °¨Áö °Å¸®(°¡½¿ À§Ä¡ ±âÁØ)
+	float ForwardCheckDistance = 70.f;   // ì•ë²½ ê°ì§€ ê±°ë¦¬(ê°€ìŠ´ ìœ„ì¹˜ ê¸°ì¤€)
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Trace")
-	float UpCheckHeight = 90.f;          // º® À§·Î ¾ó¸¶³ª ¿Ã¶ó°¡¼­ ³»·ÁÂïÀ»Áö
+	float UpCheckHeight = 90.f;          // ë²½ ìœ„ë¡œ ì–¼ë§ˆë‚˜ ì˜¬ë¼ê°€ì„œ ë‚´ë ¤ì°ì„ì§€
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Trace")
-	float DownCheckDepth = 120.f;        // À§¿¡¼­ ¾Æ·¡·Î ³»·ÁÂï´Â °Å¸®
+	float DownCheckDepth = 120.f;        // ìœ„ì—ì„œ ì•„ë˜ë¡œ ë‚´ë ¤ì°ëŠ” ê±°ë¦¬
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Trace")
-	float MinLedgeHeight = 60.f;         // ³Ê¹« ³·Àº ÅÎÀº ¹«½Ã
+	float MinLedgeHeight = 60.f;         // ë„ˆë¬´ ë‚®ì€ í„±ì€ ë¬´ì‹œ
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Trace")
-	float MaxLedgeHeight = 180.f;        // ³Ê¹« ³ôÀº °Ç ¹«½Ã
+	float MaxLedgeHeight = 180.f;        // ë„ˆë¬´ ë†’ì€ ê±´ ë¬´ì‹œ
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Snap")
-	float HangOffsetFromEdge = 35.f;     // ¿§Áö¿¡¼­ µÚ·Î ¶³¾îÁö´Â °Å¸®(º® ¹İ´ë·Î)
+	float HangOffsetFromEdge = 35.f;     // ì—£ì§€ì—ì„œ ë’¤ë¡œ ë–¨ì–´ì§€ëŠ” ê±°ë¦¬(ë²½ ë°˜ëŒ€ë¡œ)
 
 	UPROPERTY(EditAnywhere, Category = "Ledge|Snap")
 	float HangZOffset = -40.f;
 
-	// ¸ùÅ¸ÁÖ ÁöÁ¤(¿¡µğÅÍ¿¡¼­ ÇÒ´ç)
 	UPROPERTY(EditDefaultsOnly, Category = "Ledge|Anim")
 	TObjectPtr<UAnimMontage> ClimbUpMontage = nullptr;
 
-	// ·çÆ®¸ğ¼Ç »ç¿ë ¿©ºÎ(¸ùÅ¸ÁÖ°¡ ·çÆ®¸ğ¼Ç Æ÷ÇÔÀÌ¸é true ±ÇÀå)
 	UPROPERTY(EditDefaultsOnly, Category = "Ledge|Anim")
 	bool bClimbUsesRootMotion = false;
 
-	// ½ÃÄö½º Á¦¾î
-	void StartClimbUpSequence();    // ¸ùÅ¸ÁÖ Àç»ı ½ÃÀÛ
-	UFUNCTION(BlueprintCallable)    // AnimNotify¿¡¼­ È£ÃâÇÒ Ä¿¹Ô ÇÔ¼ö
-		void ClimbUpCommit();           // Á¤È® Å¸ÀÌ¹Ö¿¡ À§Ä¡¸¦ ¿§Áö À§·Î ÀÌµ¿
-	void FinishClimbUpSequence();   // Á¾·á Á¤¸®(ÀÌµ¿¸ğµå º¹±Í)
+	// ì‹œí€€ìŠ¤ ì œì–´
+	void StartClimbUpSequence();    // ëª½íƒ€ì£¼ ì¬ìƒ ì‹œì‘
+	UFUNCTION(BlueprintCallable)    // AnimNotifyì—ì„œ í˜¸ì¶œí•  ì»¤ë°‹ í•¨ìˆ˜
+		void ClimbUpCommit();           // ì •í™• íƒ€ì´ë°ì— ìœ„ì¹˜ë¥¼ ì—£ì§€ ìœ„ë¡œ ì´ë™
+	void FinishClimbUpSequence();   // ì¢…ë£Œ ì •ë¦¬(ì´ë™ëª¨ë“œ ë³µê·€)
 
 protected:
 
@@ -237,7 +235,7 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	// µî¹İ Á¾·á ½Ã ¹Ù´ÚÀ¸·Î ½º³À
+	// ë“±ë°˜ ì¢…ë£Œ ì‹œ ë°”ë‹¥ìœ¼ë¡œ ìŠ¤ëƒ…
 	void SnapCapsuleToFloor(float DownTrace = 120.f, float UpTolerance = 10.f);
 
 public:
@@ -270,4 +268,5 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
+
 
